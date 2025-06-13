@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int Quantity { get; set; }
         public bool IsProcessed { get; set; } = false;
-        public int UserId { get; set; }
+        public required string UserId { get; set; }
         public int TicketId { get; set; }
        
 

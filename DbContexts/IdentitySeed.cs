@@ -26,6 +26,7 @@ namespace Events_system.DbContexts
             {
                 admin = new User
                 {
+                    Id = "admin-id-001",
                     UserName = adminEmail,
                     Email = adminEmail,
                     FirstName = "Admin",
@@ -39,6 +40,33 @@ namespace Events_system.DbContexts
             // 3) assign Admin role
             if (!await userMgr.IsInRoleAsync(admin, "Admin"))
                 await userMgr.AddToRoleAsync(admin, "Admin");
+
+            // 4) create regular customer
+            var customerEmail = "user@example.com";
+            var customer = await userMgr.FindByEmailAsync(customerEmail);
+
+            if (customer == null)
+            {
+                customer = new User
+                {
+                    Id = "seed-user-id", // фиксирани ID ако користиш у .HasData()
+                    UserName = customerEmail,
+                    Email = customerEmail,
+                    FirstName = "Regular",
+                    LastName = "User",
+                    DateJoined = DateTime.UtcNow,
+                    EmailConfirmed = true
+                };
+
+                var res = await userMgr.CreateAsync(customer, "User@123");
+                if (!res.Succeeded)
+                    throw new Exception($"Failed to create test user: " +
+                        $"{string.Join(", ", res.Errors.Select(e => e.Description))}");
+            }
+
+            // 5) assign Customer role
+            if (!await userMgr.IsInRoleAsync(customer, "Customer"))
+                await userMgr.AddToRoleAsync(customer, "Customer");
         }
     }
 }

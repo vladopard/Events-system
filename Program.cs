@@ -1,3 +1,6 @@
+using System.Reflection.Emit;
+using Events_system.BusinessServices;
+using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DbContexts;
 using Events_system.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<EventDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHttpClient<ITickermasterService, TicketmasterService>();
 
 builder.Services.AddIdentity<User, IdentityRole>(opts =>
 {
@@ -26,9 +31,45 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<EventDbContext>();
+    var sp = scope.ServiceProvider;
+    var dbContext = sp.GetRequiredService<EventDbContext>();
 
-    await scope.ServiceProvider.EnsureSeedDataAsync();
+    await dbContext.Database.MigrateAsync();
+
+    await sp.EnsureSeedDataAsync();
+
+
+    if (!dbContext.Events.Any())
+    {
+        var tmService = scope.ServiceProvider.GetRequiredService<ITickermasterService>();
+        var events = await tmService.FetchEventsAsync();
+
+        dbContext.Events.AddRange(events);
+        await dbContext.SaveChangesAsync();
+    }
+
+    if (!dbContext.Tickets.Any())
+    {
+        var ticketTypes = await dbContext.TicketTypes.ToDictionaryAsync(t => t.Id); // 1: Regular, 2: VIP …
+        foreach (var ev in await dbContext.Events.ToListAsync())
+        {
+            dbContext.Tickets.Add(new Ticket
+            {
+                Seat = $"A{ev.Id}",
+                EventId = ev.Id,
+                TicketTypeId = ticketTypes[1].Id          // Regular
+            });
+            dbContext.Tickets.Add(new Ticket
+            {
+                Seat = $"B{ev.Id}",
+                EventId = ev.Id,
+                TicketTypeId = ticketTypes[2].Id          // VIP
+            });
+        }
+        await dbContext.SaveChangesAsync();
+    }
+
+    await sp.EnsureAsync();
 }
 
     // Configure the HTTP request pipeline.
