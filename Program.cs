@@ -3,6 +3,7 @@ using Events_system.BusinessServices;
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DbContexts;
 using Events_system.Entities;
+using Events_system.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ builder.Services.AddDbContext<EventDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHttpClient<ITickermasterService, TicketmasterService>();
+
+builder.Services.AddScoped<ISystemRepository, SystemRepository>();
 
 builder.Services.AddIdentity<User, IdentityRole>(opts =>
 {

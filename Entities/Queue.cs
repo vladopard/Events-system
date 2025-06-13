@@ -7,7 +7,7 @@
         public bool IsProcessed { get; set; } = false;
         public required string UserId { get; set; }
         public int TicketId { get; set; }
-       
+
 
         public User User { get; set; } = default!;
         public Ticket Ticket { get; set; } = default!;
