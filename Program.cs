@@ -15,6 +15,7 @@ builder.Services.AddDbContext<EventDbContext>(options =>
 builder.Services.AddHttpClient<ITickermasterService, TicketmasterService>();
 
 builder.Services.AddScoped<ISystemRepository, SystemRepository>();
+builder.Services.AddScoped<IEventService, EventService>();
 
 builder.Services.AddIdentity<User, IdentityRole>(opts =>
 {
