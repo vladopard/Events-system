@@ -8,9 +8,9 @@
         public int TicketId { get; set; }
     }
 
-    public class QueueCreateDTO : QueueBaseDTO { }
+    public class QueueCreateDTO : QueueBaseDTO {}
 
-    public class QueueUpdateDTO : QueueBaseDTO { }
+    public class QueueUpdateDTO : QueueBaseDTO {}
 
     public class QueueDTO : QueueBaseDTO
     {
