@@ -23,34 +23,34 @@ namespace Events_system.Validation
             RuleFor(x => x.StartDate)
                 .GreaterThan(DateTime.UtcNow).WithMessage("Start date must be in the future");
         }
+    }
 
-        public class EventCreateValidator : EventValidation<EventCreateDTO>
+    public class EventCreateValidator : EventValidation<EventCreateDTO>
+    {
+        public EventCreateValidator() : base() { }
+    }
+
+    public class EventUpdateValidator : EventValidation<EventUpdateDTO>
+    {
+        public EventUpdateValidator() : base() { }
+    }
+
+    public class EventPatchValidator : AbstractValidator<EventPatchDTO>
+    {
+        public EventPatchValidator()
         {
-            public EventCreateValidator() : base() { }
-        }
+            RuleFor(x => x.Name)
+                .MaximumLength(100);
 
-        public class EventUpdateValidator : EventValidation<EventUpdateDTO>
-        {
-            public EventUpdateValidator() : base() { }
-        }
+            RuleFor(x => x.Venue)
+                .MaximumLength(200);
 
-        public class EventPatchValidator : AbstractValidator<EventPatchDTO>
-        {
-            public EventPatchValidator()
-            {
-                RuleFor(x => x.Name)
-                    .MaximumLength(100);
+            RuleFor(x => x.City)
+                .MaximumLength(100);
 
-                RuleFor(x => x.Venue)
-                    .MaximumLength(200);
-
-                RuleFor(x => x.City)
-                    .MaximumLength(100);
-
-                RuleFor(x => x.StartDate)
-                    .Must(d => d == null || d > DateTime.UtcNow)
-                    .WithMessage("Start date must be in the future");
-            }
+            RuleFor(x => x.StartDate)
+                .Must(d => d == null || d > DateTime.UtcNow)
+                .WithMessage("Start date must be in the future");
         }
     }
 }

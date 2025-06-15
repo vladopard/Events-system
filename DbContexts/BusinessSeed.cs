@@ -19,7 +19,7 @@ namespace Events_system.DbContexts
                 var order = new Order
                 {
                     UserId = usr.Id,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow.AddDays(1)
                 };
                 db.Orders.Add(order);
                 await db.SaveChangesAsync();

@@ -15,3 +15,5 @@ COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Events system.dll"]
 
 #docker rm -f tms-api-container tms-postgres
+
+

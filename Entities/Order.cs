@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public required string UserId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddDays(1);
 
 
         public User User { get; set; } = default!;

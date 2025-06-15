@@ -3,19 +3,29 @@ using Events_system.BusinessServices;
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DbContexts;
 using Events_system.Entities;
+using Events_system.Helpers;
 using Events_system.Repositories;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<EventDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//builder.Services.AddDbContext<EventDbContext>(options => 
+//    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddHttpClient<ITickermasterService, TicketmasterService>();
 
 builder.Services.AddScoped<ISystemRepository, SystemRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IQueueService, QueueService>();
 
 builder.Services.AddIdentity<User, IdentityRole>(opts =>
 {
@@ -27,9 +37,25 @@ builder.Services.AddIdentity<User, IdentityRole>(opts =>
     .AddEntityFrameworkStores<EventDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(configure =>
+{
+    configure.ReturnHttpNotAcceptable = true;
+})
+    .AddNewtonsoftJson(setupAction =>
+    {
+        setupAction.SerializerSettings.ContractResolver =
+        new CamelCasePropertyNamesContractResolver();
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(
+    AppDomain.CurrentDomain.GetAssemblies());
+
+//FLUENT
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
 
@@ -75,6 +101,8 @@ using (var scope = app.Services.CreateScope())
 
     await sp.EnsureAsync();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

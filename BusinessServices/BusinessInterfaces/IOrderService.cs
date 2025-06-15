@@ -1,0 +1,14 @@
+﻿using Events_system.DTOs;
+
+namespace Events_system.BusinessServices.BusinessInterfaces
+{
+    public interface IOrderService
+    {
+        Task<OrderDTO> CreateAsync(OrderCreateDTO dto);
+        Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<OrderDTO>> GetAllAsync();
+        Task<OrderDTO> GetByIdAsync(int id);
+        Task<bool> PatchAsync(int id, OrderPatchDTO dto);
+        Task<bool> UpdateAsync(int id, OrderUpdateDTO dto);
+    }
+}

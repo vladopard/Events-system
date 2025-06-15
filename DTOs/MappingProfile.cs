@@ -11,7 +11,7 @@ namespace Events_system.DTOs
             CreateMap<Event, EventDTO>();
             CreateMap<EventCreateDTO, Event>();
             CreateMap<EventUpdateDTO, Event>();
-            CreateMap<Event, EventPatchDTO>();
+            CreateMap<EventDTO, EventPatchDTO>();
             CreateMap<EventPatchDTO, Event>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Ticket
@@ -21,14 +21,14 @@ namespace Events_system.DTOs
                 .ForMember(dest => dest.TicketPrice, opt => opt.MapFrom(src => src.TicketType.Price));
             CreateMap<TicketCreateDTO, Ticket>();
             CreateMap<TicketUpdateDTO, Ticket>();
-            CreateMap<Ticket, TicketPatchDTO>();
+            CreateMap<TicketDTO, TicketPatchDTO>();
             CreateMap<TicketPatchDTO, Ticket>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // TicketType
             CreateMap<TicketType, TicketTypeDTO>();
             CreateMap<TicketTypeCreateDTO, TicketType>();
             CreateMap<TicketTypeUpdateDTO, TicketType>();
-            CreateMap<TicketType, TicketTypePatchDTO>();
+            CreateMap<TicketTypeDTO, TicketTypePatchDTO>();
             CreateMap<TicketTypePatchDTO, TicketType>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Order
