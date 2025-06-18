@@ -12,7 +12,7 @@ namespace Events_system.DbContexts
         {
             base.OnModelCreating(builder);
 
-            SeedData.Seed(builder);
+            //SeedData.Seed(builder);
 
             builder.ApplyConfigurationsFromAssembly(typeof(EventDbContext).Assembly);
 

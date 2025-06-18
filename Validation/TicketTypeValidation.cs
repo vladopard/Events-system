@@ -14,6 +14,9 @@ namespace Events_system.Validation
 
             RuleFor(x => x.Price)
                 .GreaterThan(0).WithMessage("Price must be greater than zero");
+
+            RuleFor(x => x.EventId)
+                .GreaterThan(0).WithMessage("EventId is required");
         }
     }
 
@@ -30,6 +33,9 @@ namespace Events_system.Validation
 
             RuleFor(x => x.Price)
                 .GreaterThan(0).When(x => x.Price.HasValue);
+
+            RuleFor(x => x.EventId)
+                .GreaterThan(0).When(x => x.EventId.HasValue);
         }
     }
 }

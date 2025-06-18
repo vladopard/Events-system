@@ -24,6 +24,7 @@ builder.Services.AddHttpClient<ITickermasterService, TicketmasterService>();
 builder.Services.AddScoped<ISystemRepository, SystemRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<ITicketTypeService, TicketTypeService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IQueueService, QueueService>();
 
@@ -65,10 +66,10 @@ using (var scope = app.Services.CreateScope())
     var dbContext = sp.GetRequiredService<EventDbContext>();
 
     await dbContext.Database.MigrateAsync();
-
+    
     await sp.EnsureSeedDataAsync();
 
-
+    //REFAKTORISI POSLE
     if (!dbContext.Events.Any())
     {
         var tmService = scope.ServiceProvider.GetRequiredService<ITickermasterService>();
@@ -76,25 +77,34 @@ using (var scope = app.Services.CreateScope())
 
         dbContext.Events.AddRange(events);
         await dbContext.SaveChangesAsync();
+
+        foreach (var ev in events)
+        {
+            dbContext.TicketTypes.AddRange(
+                new TicketType { Name = "Regular", Price = 50, EventId = ev.Id },
+                new TicketType { Name = "VIP", Price = 120, EventId = ev.Id }
+            );
+        }
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Tickets.Any())
     {
-        var ticketTypes = await dbContext.TicketTypes.ToDictionaryAsync(t => t.Id); // 1: Regular, 2: VIP …
-        foreach (var ev in await dbContext.Events.ToListAsync())
+        var allEvents = await dbContext.Events
+            .Include(e => e.TicketTypes)
+            .ToListAsync();
+
+        foreach (var ev in allEvents)
         {
-            dbContext.Tickets.Add(new Ticket
-            {
-                Seat = $"A{ev.Id}",
-                EventId = ev.Id,
-                TicketTypeId = ticketTypes[1].Id          // Regular
-            });
-            dbContext.Tickets.Add(new Ticket
-            {
-                Seat = $"B{ev.Id}",
-                EventId = ev.Id,
-                TicketTypeId = ticketTypes[2].Id          // VIP
-            });
+            var regular = ev.TicketTypes.FirstOrDefault(tt => tt.Name == "Regular");
+            var vip = ev.TicketTypes.FirstOrDefault(tt => tt.Name == "VIP");
+
+            if (regular == null || vip == null) continue;
+
+            dbContext.Tickets.AddRange(
+                new Ticket { Seat = $"A{ev.Id}", EventId = ev.Id, TicketTypeId = regular.Id },
+                new Ticket { Seat = $"B{ev.Id}", EventId = ev.Id, TicketTypeId = vip.Id }
+            );
         }
         await dbContext.SaveChangesAsync();
     }

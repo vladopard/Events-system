@@ -46,7 +46,7 @@ namespace Events_system.Controllers
 
         // PUT: api/tickets/{id}
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TicketCreateDTO dto)
+        public async Task<IActionResult> Update(int id, [FromBody] TicketUpdateDTO dto)
         {
             await _service.UpdateAsync(id, dto);
             return NoContent();

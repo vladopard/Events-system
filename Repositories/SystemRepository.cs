@@ -15,10 +15,11 @@ namespace Events_system.Repositories
         }
         //EVENTS
         public async Task<IEnumerable<Event>> GetAllEventsAsync() =>
-            await _context.Events.AsNoTracking().Include(e => e.Tickets).ToListAsync();
-
+            await _context.Events.AsNoTracking().Include(e => e.Tickets)
+            .Include(e => e.TicketTypes).ToListAsync();
         public async Task<Event?> GetEventByIdAsync(int id) =>
-            await _context.Events.Include(e => e.Tickets).FirstOrDefaultAsync(e => e.Id == id);
+            await _context.Events.Include(e => e.Tickets)
+            .Include(e => e.TicketTypes).FirstOrDefaultAsync(e => e.Id == id);
         //IZMENI POSLE MOZDA U REFERENCE LOAD ASYNC
         public async Task AddEventAsync(Event evt) => await _context.Events.AddAsync(evt);
         public void UpdateEvent(Event evt) => _context.Events.Update(evt);
@@ -29,9 +30,16 @@ namespace Events_system.Repositories
             await _context.Tickets.Include(t => t.Event).Include(t => t.TicketType).ToListAsync();
         public async Task<Ticket?> GetTicketByIdAsync(int id) =>
             await _context.Tickets.Include(t => t.Event).Include(t => t.TicketType).FirstOrDefaultAsync(t => t.Id == id);
+        public async Task<IEnumerable<Ticket>> GetTicketsByOrderIdAsync(int orderId)
+        {
+            return await _context.Tickets
+                .Where(t => t.OrderId == orderId)
+                .ToListAsync();
+        }
         public async Task AddTicketAsync(Ticket ticket) => await _context.Tickets.AddAsync(ticket);
         public void UpdateTicket(Ticket ticket) => _context.Tickets.Update(ticket);
         public void DeleteTicket(Ticket ticket) => _context.Tickets.Remove(ticket);
+        //GetTicketsByEventId - IMPLEMENTIRATI KASNIJE
 
         // ORDERS
         public async Task<IEnumerable<Order>> GetAllOrdersAsync() =>
@@ -53,12 +61,21 @@ namespace Events_system.Repositories
 
         // TICKET TYPES
         public async Task<IEnumerable<TicketType>> GetAllTicketTypesAsync() =>
-            await _context.TicketTypes.Include(tt => tt.Tickets).ToListAsync();
+            await _context.TicketTypes.Include(tt => tt.Event).ToListAsync(); //event mozda
         public async Task<TicketType?> GetTicketTypeByIdAsync(int id) =>
-            await _context.TicketTypes.Include(tt => tt.Tickets).FirstOrDefaultAsync(tt => tt.Id == id);
+            await _context.TicketTypes.Include(tt => tt.Event).FirstOrDefaultAsync(tt => tt.Id == id);
+        public async Task<IEnumerable<TicketType>> GetTicketTypesByEventIdAsync(int eventId)
+        {
+            return await _context.Tickets
+                .Where(t => t.EventId == eventId)
+                .Select(t => t.TicketType)
+                .Distinct()
+                .ToListAsync();
+        }
         public async Task AddTicketTypeAsync(TicketType ticketType) => await _context.TicketTypes.AddAsync(ticketType);
         public void UpdateTicketType(TicketType ticketType) => _context.TicketTypes.Update(ticketType);
         public void DeleteTicketType(TicketType ticketType) => _context.TicketTypes.Remove(ticketType);
+        //GetTicketTypesByEventId - MOZDA IMPLEMENTIRATI KASNIJE
 
         // SAVE CHANGES
         public async Task<bool> SaveChangesAsync() =>

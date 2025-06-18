@@ -22,13 +22,13 @@ namespace Events_system.EntityConfig
                    .OnDelete(DeleteBehavior.Restrict); // Не бриши поруџбине ако се обрише User
 
             // 🔒 Check constraint: CreatedAt must not be in the future
-            builder.ToTable("Orders", table =>
-            {
-                table.HasCheckConstraint(
-                    "CK_Order_CreatedAt_Past",
-                    "\"CreatedAt\" <= CURRENT_TIMESTAMP"
-                );
-            });
+            //builder.ToTable("Orders", table =>
+            //{
+            //    table.HasCheckConstraint(
+            //        "CK_Order_CreatedAt_Past",
+            //        "\"CreatedAt\" <= CURRENT_TIMESTAMP"
+            //    );
+            //});
         }
     }
 }

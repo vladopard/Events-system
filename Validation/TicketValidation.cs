@@ -10,7 +10,7 @@ namespace Events_system.Validation
         {
             RuleFor(x => x.Seat)
                 .NotEmpty().WithMessage("Seat is required")
-                .MaximumLength(10);
+                .MaximumLength(20);
 
             RuleFor(x => x.EventId)
                 .GreaterThan(0).WithMessage("EventId must be a valid ID");
@@ -29,13 +29,15 @@ namespace Events_system.Validation
         public TicketPatchValidator()
         {
             RuleFor(x => x.Seat)
-                .MaximumLength(10);
+                .MaximumLength(20);
 
             RuleFor(x => x.EventId)
                 .GreaterThan(0).When(x => x.EventId.HasValue);
 
             RuleFor(x => x.TicketTypeId)
                 .GreaterThan(0).When(x => x.TicketTypeId.HasValue);
+            RuleFor(x => x.OrderId)
+                .GreaterThan(0).When(x => x.OrderId.HasValue); 
         }
     }
 }

@@ -29,6 +29,8 @@ namespace Events_system.BusinessServices
             return _mapper.Map<TicketDTO>(ticket);
         }
 
+        //GetTicketsByEventId(int eventId)
+
         public async Task<TicketDTO> CreateAsync(TicketCreateDTO dto)
         {
             var ticket = _mapper.Map<Ticket>(dto);
@@ -40,7 +42,7 @@ namespace Events_system.BusinessServices
 
             return _mapper.Map<TicketDTO>(newTicket);
         }
-        public async Task<bool> UpdateAsync(int id, TicketCreateDTO dto)
+        public async Task<bool> UpdateAsync(int id, TicketUpdateDTO dto)
         {
             var ticket = await GetTicketOrThrowAsync(id);
             _mapper.Map(dto, ticket);

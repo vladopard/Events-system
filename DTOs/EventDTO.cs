@@ -10,13 +10,18 @@
         public DateTime StartDate { get; set; }
     }
 
-    public class EventCreateDTO : EventBaseDTO { }
+    public class EventCreateDTO : EventBaseDTO 
+    {
+        public List<TicketTypeCreateDTO> TicketTypes { get; set; } = new();
+    }
 
     public class EventUpdateDTO : EventBaseDTO { }
 
     public class EventDTO : EventBaseDTO
     {
         public int Id { get; set; }
+        public List<TicketTypeDTO> TicketTypes { get; set; } = new(); // prikaz tipova karata uz događaj
+
     }
 
     public class EventPatchDTO

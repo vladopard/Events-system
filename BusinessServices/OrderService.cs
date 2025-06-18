@@ -29,25 +29,72 @@ namespace Events_system.BusinessServices
             return _mapper.Map<OrderDTO>(order);
         }
 
+        //public async Task<OrderDTO> CreateAsync(OrderCreateDTO dto)
+        //{
+        //    var order = _mapper.Map<Order>(dto);
+        //    await _repo.AddOrderAsync(order);
+
+        //    await _repo.SaveChangesAsync();
+
+        //    var newOrder = await _repo.GetOrderByIdAsync(order.Id);
+
+        //    return _mapper.Map<OrderDTO>(newOrder);
+        //}
+
         public async Task<OrderDTO> CreateAsync(OrderCreateDTO dto)
         {
-            var order = _mapper.Map<Order>(dto);
-            await _repo.AddOrderAsync(order);
 
+            var order = _mapper.Map<Order>(dto);
+
+            foreach (var ticketId in dto.TicketIds)
+            {
+                var ticket = await _repo.GetTicketByIdAsync(ticketId);
+                if (ticket == null) throw new KeyNotFoundException($"Ticket {ticketId} not found.");
+
+                // Proveri da nije već dodeljen
+                if (ticket.OrderId != null)
+                    throw new InvalidOperationException($"Ticket {ticketId} is already assigned to an order.");
+
+                ticket.Order = order; // EF automatski povezuje
+                order.Tickets.Add(ticket);
+            }
+
+            await _repo.AddOrderAsync(order);
             await _repo.SaveChangesAsync();
 
-            var newOrder = await _repo.GetOrderByIdAsync(order.Id);
-
+            var newOrder = await _repo.GetOrderByIdAsync(order.Id); // .Include(o => o.Tickets)
             return _mapper.Map<OrderDTO>(newOrder);
         }
 
-        public async Task<bool> UpdateAsync(int id, OrderUpdateDTO dto)
+
+        public async Task UpdateAsync(int id, OrderUpdateDTO dto)
         {
             var order = await GetOrderOrThrowAsync(id);
-            _mapper.Map(dto, order);
-            _repo.UpdateOrder(order);
-            return await _repo.SaveChangesAsync();
+
+            // 1. Обриши све постојеће везе
+            var existingTickets = await _repo.GetTicketsByOrderIdAsync(order.Id);
+            foreach (var ticket in existingTickets)
+                ticket.OrderId = null;
+
+            // 2. Апдејтуј основне податке
+            order.UserId = dto.UserId;
+
+            // 3. Вежи нове тикете
+            foreach (var ticketId in dto.TicketIds)
+            {
+                var ticket = await _repo.GetTicketByIdAsync(ticketId);
+                if (ticket == null)
+                    throw new KeyNotFoundException($"Ticket {ticketId} not found.");
+
+                if (ticket.OrderId != null && ticket.OrderId != order.Id)
+                    throw new InvalidOperationException($"Ticket {ticketId} is already assigned to another order.");
+
+                ticket.OrderId = order.Id;
+            }
+
+            await _repo.SaveChangesAsync();
         }
+
 
         public async Task<bool> PatchAsync(int id, OrderPatchDTO dto)
         {

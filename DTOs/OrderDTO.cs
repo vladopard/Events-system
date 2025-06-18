@@ -3,7 +3,7 @@
     public abstract class OrderBaseDTO
     {
         public string UserId { get; set; } = null!;
-        public List<int> TicketIds { get; set; } = new();
+        public List<int> TicketIds { get; set; } = new List<int>();
     }
     public class OrderCreateDTO : OrderBaseDTO { }
     public class OrderUpdateDTO : OrderBaseDTO { }

@@ -11,6 +11,6 @@
         public DateTime StartDate { get; set; }
 
         public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
-
+        public ICollection<TicketType> TicketTypes { get; set; } = new List<TicketType>(); // ← додато
     }
 }

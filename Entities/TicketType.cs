@@ -3,9 +3,10 @@
     public class TicketType
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        public required string Name { get; set; }  // нпр. "VIP", "Regular"
         public decimal Price { get; set; }
 
-        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public int EventId { get; set; }           // ← веза ка Event
+        public Event Event { get; set; } = default!;
     }
 }

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events_system.Migrations
 {
     [DbContext(typeof(EventDbContext))]
-    [Migration("20250612203507_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250617164910_RemoveOrderCreatedAtCheck")]
+    partial class RemoveOrderCreatedAtCheck
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,24 +35,29 @@ namespace Events_system.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Venue")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
 
@@ -78,10 +83,7 @@ namespace Events_system.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_Order_CreatedAt_Past", "\"CreatedAt\" <= CURRENT_TIMESTAMP");
-                        });
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Events_system.Entities.Queue", b =>
@@ -155,6 +157,9 @@ namespace Events_system.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("EventId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -165,29 +170,11 @@ namespace Events_system.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EventId");
+
                     b.ToTable("TicketTypes", null, t =>
                         {
                             t.HasCheckConstraint("CK_TicketType_Price_Positive", "\"Price\" > 0");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Regular",
-                            Price = 50m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "VIP",
-                            Price = 120m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Student",
-                            Price = 30m
                         });
                 });
 
@@ -440,9 +427,9 @@ namespace Events_system.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Events_system.Entities.TicketType", "TicketType")
-                        .WithMany("Tickets")
+                        .WithMany()
                         .HasForeignKey("TicketTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -450,6 +437,17 @@ namespace Events_system.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("TicketType");
+                });
+
+            modelBuilder.Entity("Events_system.Entities.TicketType", b =>
+                {
+                    b.HasOne("Events_system.Entities.Event", "Event")
+                        .WithMany("TicketTypes")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -505,6 +503,8 @@ namespace Events_system.Migrations
 
             modelBuilder.Entity("Events_system.Entities.Event", b =>
                 {
+                    b.Navigation("TicketTypes");
+
                     b.Navigation("Tickets");
                 });
 
@@ -516,11 +516,6 @@ namespace Events_system.Migrations
             modelBuilder.Entity("Events_system.Entities.Ticket", b =>
                 {
                     b.Navigation("Queues");
-                });
-
-            modelBuilder.Entity("Events_system.Entities.TicketType", b =>
-                {
-                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("Events_system.Entities.User", b =>

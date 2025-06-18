@@ -18,6 +18,11 @@ namespace Events_system.EntityConfig
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
 
+            builder.HasOne(tt => tt.Event)
+                .WithMany(e => e.TicketTypes)
+                .HasForeignKey(tt => tt.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.ToTable("TicketTypes", table =>
             {
                 table.HasCheckConstraint(

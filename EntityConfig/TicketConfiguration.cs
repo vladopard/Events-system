@@ -14,22 +14,27 @@ namespace Events_system.EntityConfig
                 .IsRequired()
                 .HasMaxLength(50);
 
-            //➡ Пишеш конфигурацију у оном ентитету који садржи foreign key.
-
+            // Ticket → Event (many-to-one)
             builder.HasOne(t => t.Event)
                 .WithMany(e => e.Tickets)
                 .HasForeignKey(t => t.EventId)
-                .OnDelete(DeleteBehavior.Cascade); // briši sve tikete kad se briše Event
+                .OnDelete(DeleteBehavior.Cascade); // Kad se Event obriše, briši i njegove tikete
 
+            // Ticket → TicketType (many-to-one) ← OVO JE NOVO
             builder.HasOne(t => t.TicketType)
-                .WithMany(tt => tt.Tickets)
+                .WithMany()
                 .HasForeignKey(t => t.TicketTypeId)
-                .OnDelete(DeleteBehavior.Cascade); // briši tikete ako nema više tog tipa
+                .OnDelete(DeleteBehavior.Restrict); 
 
+            // Ticket → Order (nullable many-to-one)
             builder.HasOne(t => t.Order)
                 .WithMany(o => o.Tickets)
                 .HasForeignKey(t => t.OrderId)
-                .OnDelete(DeleteBehavior.SetNull); // Order može da se obriše, ali karta ostaje
+                .OnDelete(DeleteBehavior.SetNull); // Ako se Order obriše, Ticket ostaje
+
+            builder
+                .HasIndex(t => new { t.EventId, t.Seat })
+                .IsUnique();
 
             builder.ToTable("Tickets");
         }
