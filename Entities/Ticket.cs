@@ -13,7 +13,6 @@
 
         public int? OrderId { get; set; }
         public Order? Order { get; set; }
-        public ICollection<Queue> Queues { get; set; } = new List<Queue>();
 
     }
 }

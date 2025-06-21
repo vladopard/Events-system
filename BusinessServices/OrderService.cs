@@ -41,6 +41,57 @@ namespace Events_system.BusinessServices
         //    return _mapper.Map<OrderDTO>(newOrder);
         //}
 
+        public async Task<OrderOrQueueResponseDTO> CreateeAsync(OrderRequestDTO dto)
+        {
+            var availableTickets = await _repo.GetTicketsByTicketTypeIdAsync(dto.TicketTypeId);
+            var ticket = availableTickets.FirstOrDefault(t => t.OrderId == null);
+
+            if (ticket == null)
+            {
+                // Нема слободних → додај у ред чекања
+                var queue = new Queue
+                {
+                    UserId = dto.UserId,
+                    TicketTypeId = dto.TicketTypeId,
+                    Status = QueueStatus.Waiting
+                };
+
+                await _repo.AddQueueAsync(queue);
+                await _repo.SaveChangesAsync();
+
+                // Поново учитати queue са Ticket-ом и User-ом
+                var createdQueue = await _repo.GetQueueByIdAsync(queue.Id);
+
+                return new OrderOrQueueResponseDTO
+                {
+                    IsQueued = true,
+                    Queue = _mapper.Map<QueueDTO>(createdQueue)
+                };
+            }
+
+            // Постоји слободна карта → креирај поруџбину
+            var order = new Order
+            {
+                UserId = dto.UserId,
+                CreatedAt = DateTime.UtcNow,
+                Tickets = new List<Ticket> { ticket }
+            };
+
+            ticket.Order = order;
+
+            await _repo.AddOrderAsync(order);
+            await _repo.SaveChangesAsync();
+
+            // Поново учитати order са Tickets
+            var createdOrder = await _repo.GetOrderByIdAsync(order.Id);
+
+            return new OrderOrQueueResponseDTO
+            {
+                IsQueued = false,
+                Order = _mapper.Map<OrderDTO>(createdOrder)
+            };
+        }
+
         public async Task<OrderDTO> CreateAsync(OrderCreateDTO dto)
         {
 

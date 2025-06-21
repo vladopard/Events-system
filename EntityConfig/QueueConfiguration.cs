@@ -10,10 +10,7 @@ namespace Events_system.EntityConfig
         {
             builder.HasKey(q => q.Id);
 
-            builder.Property(q => q.Quantity)
-                   .IsRequired();
-
-            builder.Property(q => q.IsProcessed)
+            builder.Property(q => q.Status)
                    .IsRequired();
 
             builder.Property(q => q.UserId)
@@ -22,12 +19,12 @@ namespace Events_system.EntityConfig
             builder.HasOne(q => q.User)
                    .WithMany(u => u.Queues)
                    .HasForeignKey(q => q.UserId)
-                   .OnDelete(DeleteBehavior.Cascade); // ако се обрише корисник, обриши и ред из чекања
+                   .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(q => q.Ticket)
-                   .WithMany(t => t.Queues)
-                   .HasForeignKey(q => q.TicketId)
-                   .OnDelete(DeleteBehavior.Cascade); // ако се обрише карта, обриши и ред из чекања
+            builder.HasOne(q => q.TicketType)
+                   .WithMany()
+                   .HasForeignKey(q => q.TicketTypeId)
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable("Queues");
         }

@@ -1,5 +1,4 @@
-﻿// DbContexts/BusinessSeed.cs
-using Events_system.Entities;
+﻿using Events_system.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,18 +23,17 @@ namespace Events_system.DbContexts
                 db.Orders.Add(order);
                 await db.SaveChangesAsync();
 
-                // вежи први тикет уз ову поруџбину
                 var firstTicket = await db.Tickets.FirstAsync();
                 firstTicket.OrderId = order.Id;
                 await db.SaveChangesAsync();
 
-                // Queue пример
+                var ticketTypeId = firstTicket.TicketTypeId;
+
                 db.Queues.Add(new Queue
                 {
-                    Quantity = 1,
                     UserId = usr.Id,
-                    TicketId = firstTicket.Id,
-                    IsProcessed = false
+                    TicketTypeId = ticketTypeId,
+                    Status = QueueStatus.Waiting
                 });
                 await db.SaveChangesAsync();
             }

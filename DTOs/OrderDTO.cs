@@ -19,4 +19,21 @@
         public string? UserId { get; set; }
         public List<int>? TicketIds { get; set; }
     }
+    //не можеш унапред знати ID тикета — јер тек тражиш први слободан.
+    public class OrderRequestDTO
+    {
+        public string UserId { get; set; } = null!;
+        public int TicketTypeId { get; set; }
+    }
+
+    public class OrderOrQueueResponseDTO
+    {
+        public bool IsQueued { get; set; }
+
+        // Ако је наруџбина успела
+        public OrderDTO? Order { get; set; }
+
+        // Ако није било доступних карата
+        public QueueDTO? Queue { get; set; }
+    }
 }

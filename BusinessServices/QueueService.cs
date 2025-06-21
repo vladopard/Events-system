@@ -32,6 +32,7 @@ namespace Events_system.BusinessServices
         public async Task<QueueDTO> CreateAsync(QueueCreateDTO dto)
         {
             var queue = _mapper.Map<Queue>(dto);
+
             await _repo.AddQueueAsync(queue);
             await _repo.SaveChangesAsync();
 
@@ -69,4 +70,3 @@ namespace Events_system.BusinessServices
         }
     }
 }
-

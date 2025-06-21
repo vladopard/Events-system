@@ -8,34 +8,37 @@ namespace Events_system.Validation
     {
         protected QueueBaseValidator()
         {
-            RuleFor(x => x.Quantity)
-                .GreaterThan(0).WithMessage("Quantity must be greater than 0");
-
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("UserId is required");
 
-            RuleFor(x => x.TicketId)
-                .GreaterThan(0).WithMessage("TicketId must be a valid ID");
+            RuleFor(x => x.TicketTypeId)
+                .GreaterThan(0).WithMessage("TicketTypeId must be a valid ID");
         }
     }
 
     public class QueueCreateValidator : QueueBaseValidator<QueueCreateDTO> { }
 
-    public class QueueUpdateValidator : QueueBaseValidator<QueueUpdateDTO> { }
+    public class QueueUpdateValidator : QueueBaseValidator<QueueUpdateDTO>
+    {
+        public QueueUpdateValidator()
+        {
+            RuleFor(x => x.Status)
+                .IsInEnum().WithMessage("Invalid status value.");
+        }
+    }
 
     public class QueuePatchValidator : AbstractValidator<QueuePatchDTO>
     {
         public QueuePatchValidator()
         {
-            RuleFor(x => x.Quantity)
-                .GreaterThan(0).When(x => x.Quantity.HasValue);
-
             RuleFor(x => x.UserId)
-                .NotEmpty().When(x => x.UserId != null);
+                .NotEmpty().When(x => x.UserId is not null);
 
-            RuleFor(x => x.TicketId)
-                .GreaterThan(0).When(x => x.TicketId.HasValue);
+            RuleFor(x => x.TicketTypeId)
+                .GreaterThan(0).When(x => x.TicketTypeId.HasValue);
+
+            RuleFor(x => x.Status)
+                .IsInEnum().When(x => x.Status.HasValue);
         }
     }
 }
-

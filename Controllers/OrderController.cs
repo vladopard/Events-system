@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Events_system.BusinessServices;
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DTOs;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,12 @@ namespace Events_system.Controllers
             return Ok(order);
         }
 
+        [HttpPost("order-or-queue")]
+        public async Task<ActionResult<OrderOrQueueResponseDTO>> Createe([FromBody] OrderRequestDTO dto)
+        {
+            var result = await _service.CreateeAsync(dto);
+            return Ok(result);
+        }
         [HttpPost]
         public async Task<ActionResult<OrderDTO>> Create(OrderCreateDTO dto)
         {

@@ -1,4 +1,5 @@
-﻿using Events_system.Entities;
+﻿using System.Threading.Tasks;
+using Events_system.Entities;
 
 namespace Events_system.Repositories
 {
@@ -25,6 +26,7 @@ namespace Events_system.Repositories
         Task<Ticket?> GetTicketByIdAsync(int id);
         Task<TicketType?> GetTicketTypeByIdAsync(int id);
         Task<IEnumerable<Ticket>> GetTicketsByOrderIdAsync(int orderId);
+        Task<IEnumerable<Ticket>> GetTicketsByTicketTypeIdAsync(int ticketTypeId);
         Task<IEnumerable<TicketType>> GetTicketTypesByEventIdAsync(int eventId);
         Task<bool> SaveChangesAsync();
         void UpdateEvent(Event evt);
