@@ -11,63 +11,39 @@ namespace Events_system.Controllers
     public class QueueController : ControllerBase
     {
         private readonly IQueueService _service;
-        private readonly IMapper _mapper;
 
-        public QueueController(IQueueService service, IMapper mapper)
-        {
-            _service = service;
-            _mapper = mapper;
-        }
+        public QueueController(IQueueService service) => _service = service;
 
+        // GET /api/queues
         [HttpGet]
         public async Task<ActionResult<IEnumerable<QueueDTO>>> GetAll()
-        {
-            var queues = await _service.GetAllAsync();
-            return Ok(queues);
-        }
+            => Ok(await _service.GetAllAsync());
 
+        // GET /api/queues/{id}
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<QueueDTO>> Get(int id)
-        {
-            var queue = await _service.GetByIdAsync(id);
-            return Ok(queue);
-        }
+        public async Task<ActionResult<QueueDTO>> GetById(int id)
+            => Ok(await _service.GetByIdAsync(id));
 
-        [HttpPost]
-        public async Task<ActionResult<QueueDTO>> Create([FromBody] QueueCreateDTO dto)
-        {
-            var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
-        }
+        // GET /api/queues/waiting
+        [HttpGet("waiting")]
+        public async Task<ActionResult<IEnumerable<QueueDTO>>> GetWaiting()
+            => Ok(await _service.GetWaitingAsync());
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] QueueUpdateDTO dto)
+        // GET /api/queues/user/{userId}
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<QueueDTO>>> GetByUser(string userId)
+            => Ok(await _service.GetByUserIdAsync(userId));
+
+        // PUT /api/queues/{id}/notify
+        [HttpPut("{id:int}/notify")]
+        public async Task<IActionResult> Notify(int id)
         {
-            await _service.UpdateAsync(id, dto);
+            await _service.NotifyAsync(id);
             return NoContent();
         }
 
-        [HttpPatch("{id:int}")]
-        public async Task<IActionResult> Patch(int id, JsonPatchDocument<QueuePatchDTO> patchDoc)
-        {
-            if (patchDoc == null)
-                return BadRequest();
 
-            var existingDto = await _service.GetByIdAsync(id);
-            var patchDto = _mapper.Map<QueuePatchDTO>(existingDto);
-
-            patchDoc.ApplyTo(patchDto, ModelState);
-
-            if (!ModelState.IsValid)
-                return ValidationProblem(ModelState);
-
-            if (!TryValidateModel(patchDto))
-                return UnprocessableEntity(ModelState);
-
-            await _service.PatchAsync(id, patchDto);
-            return NoContent();
-        }
-
+        // DELETE /api/queues/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

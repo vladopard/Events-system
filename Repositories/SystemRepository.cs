@@ -22,6 +22,16 @@ namespace Events_system.Repositories
                 .Include(e => e.TicketTypes)
                 .ToListAsync();
 
+        public async Task<IEnumerable<Queue>> GetWaitingAsync()
+        {
+            return await _context.Queues
+                .Where(q => q.Status == QueueStatus.Waiting)
+                .Include(q => q.User)
+                .Include(q => q.TicketType)
+                .ToListAsync();
+        }
+
+
         public async Task<Event?> GetEventByIdAsync(int id) =>
             await _context.Events
                 .Include(e => e.Tickets)

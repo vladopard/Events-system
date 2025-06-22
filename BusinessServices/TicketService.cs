@@ -10,11 +10,13 @@ namespace Events_system.BusinessServices
     {
         private readonly ISystemRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IQueueService _queueService;
 
-        public TicketService(ISystemRepository repo, IMapper mapper)
+        public TicketService(ISystemRepository repo, IMapper mapper, IQueueService queueService)
         {
             _repo = repo;
             _mapper = mapper;
+            _queueService = queueService;
         }
 
         public async Task<IEnumerable<TicketDTO>> GetAllAsync()
@@ -38,6 +40,8 @@ namespace Events_system.BusinessServices
 
             await _repo.SaveChangesAsync();
             //PROVERI DAL RADI
+            await _queueService.ProcessQueueForTicketTypeAsync(ticket.TicketTypeId);
+
             var newTicket = await _repo.GetTicketByIdAsync(ticket.Id);
 
             return _mapper.Map<TicketDTO>(newTicket);

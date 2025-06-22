@@ -25,48 +25,78 @@ namespace Events_system.BusinessServices
 
         public async Task<QueueDTO> GetByIdAsync(int id)
         {
-            var queue = await GetQueueOrThrowAsync(id);
-            return _mapper.Map<QueueDTO>(queue);
+            var q = await GetOrThrow(id);
+            return _mapper.Map<QueueDTO>(q);
         }
 
-        public async Task<QueueDTO> CreateAsync(QueueCreateDTO dto)
+        public async Task<IEnumerable<QueueDTO>> GetWaitingAsync()
         {
-            var queue = _mapper.Map<Queue>(dto);
-
-            await _repo.AddQueueAsync(queue);
-            await _repo.SaveChangesAsync();
-
-            var newQueue = await _repo.GetQueueByIdAsync(queue.Id);
-            return _mapper.Map<QueueDTO>(newQueue);
+            var queues = await _repo.GetAllQueuesAsync();
+            var waiting = queues.Where(q => q.Status == QueueStatus.Waiting);
+            return _mapper.Map<IEnumerable<QueueDTO>>(waiting);
         }
 
-        public async Task UpdateAsync(int id, QueueUpdateDTO dto)
+        public async Task<IEnumerable<QueueDTO>> GetByUserIdAsync(string userId)
         {
-            var queue = await GetQueueOrThrowAsync(id);
-            _mapper.Map(dto, queue);
-            _repo.UpdateQueue(queue);
-            await _repo.SaveChangesAsync();
+            var queues = await _repo.GetAllQueuesAsync();
+            var list = queues.Where(q => q.UserId == userId);
+            return _mapper.Map<IEnumerable<QueueDTO>>(list);
         }
 
-        public async Task PatchAsync(int id, QueuePatchDTO dto)
+        public async Task NotifyAsync(int id)
         {
-            var queue = await GetQueueOrThrowAsync(id);
-            _mapper.Map(dto, queue);
-            _repo.UpdateQueue(queue);
+            var q = await GetOrThrow(id);
+            if (q.Status != QueueStatus.Waiting)
+                throw new InvalidOperationException("Only waiting queues can be notified.");
+
+            q.Status = QueueStatus.Notified;
+            _repo.UpdateQueue(q);
             await _repo.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var queue = await GetQueueOrThrowAsync(id);
-            _repo.DeleteQueue(queue);
+            var q = await GetOrThrow(id);
+            _repo.DeleteQueue(q);
             await _repo.SaveChangesAsync();
         }
 
-        private async Task<Queue> GetQueueOrThrowAsync(int id)
+        // ────────────────────────────────────────────────
+        private async Task<Queue> GetOrThrow(int id) =>
+            await _repo.GetQueueByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Queue {id} not found.");
+
+        public async Task ProcessQueueForTicketTypeAsync(int ticketTypeId)
         {
-            return await _repo.GetQueueByIdAsync(id)
-                ?? throw new KeyNotFoundException($"Queue {id} not found.");
+            // 1. има ли слободних карата?
+            var freeTicket = (await _repo.GetTicketsByTicketTypeIdAsync(ticketTypeId))
+                             .FirstOrDefault();
+            if (freeTicket == null) return;
+
+            // 2. има ли неког ко чека?
+            var queueItem = (await _repo.GetWaitingAsync())
+                            .Where(q => q.TicketTypeId == ticketTypeId)
+                            .OrderBy(q => q.Id)          // FIFO
+                            .FirstOrDefault();
+            if (queueItem == null) return;
+
+            // 3. креирај поруџбину
+            var order = new Order
+            {
+                UserId = queueItem.UserId,
+                CreatedAt = DateTime.UtcNow,
+                Tickets = new List<Ticket> { freeTicket }
+            };
+            freeTicket.Order = order;
+            await _repo.AddOrderAsync(order);
+
+            // 4. уклони/заврши queue
+            queueItem.Status = QueueStatus.Fulfilled;
+            _repo.UpdateQueue(queueItem);
+
+            await _repo.SaveChangesAsync();
         }
+
+
     }
 }

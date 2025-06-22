@@ -10,6 +10,7 @@ namespace Events_system.Repositories
         Task AddQueueAsync(Queue queue);
         Task AddTicketAsync(Ticket ticket);
         Task AddTicketTypeAsync(TicketType ticketType);
+        Task<IEnumerable<Queue>> GetWaitingAsync();
         void DeleteEvent(Event evt);
         void DeleteOrder(Order order);
         void DeleteQueue(Queue queue);

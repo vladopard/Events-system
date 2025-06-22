@@ -36,7 +36,8 @@ namespace Events_system.Controllers
         }
 
         [HttpPost("order-or-queue")]
-        public async Task<ActionResult<OrderOrQueueResponseDTO>> Createe([FromBody] OrderRequestDTO dto)
+        public async Task<ActionResult<OrderOrQueueResponseDTO>> 
+            Createe([FromBody] OrderRequestDTO dto)
         {
             var result = await _service.CreateeAsync(dto);
             return Ok(result);

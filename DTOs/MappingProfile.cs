@@ -57,16 +57,20 @@ namespace Events_system.DTOs
             // ======================
 
             CreateMap<Order, OrderDTO>()
-                .ForMember(dest => dest.TicketIds, opt => opt.MapFrom(src => src.Tickets.Select(t => t.Id)));
+                .ForMember(dest => dest.TicketIds, 
+                opt => opt.MapFrom(src => src.Tickets.Select(t => t.Id)));
 
             CreateMap<OrderCreateDTO, Order>();
+
+
 
             // ======================
             // QUEUE
             // ======================
 
             CreateMap<Queue, QueueDTO>()
-    .ForMember(dest => dest.TicketTypeName, opt => opt.MapFrom(src => src.TicketType.Name));
+                .ForMember(dest => dest.TicketTypeName, 
+                opt => opt.MapFrom(src => src.TicketType.Name));
 
             CreateMap<QueueCreateDTO, Queue>()
                 .ForMember(dest => dest.Status, opt => opt.Ignore()); // биће постављен ручно као QueueStatus.Waiting
