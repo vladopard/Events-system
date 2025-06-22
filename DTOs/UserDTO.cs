@@ -7,4 +7,11 @@
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
     }
+
+    public record LoginDTO(string Email, string Password);
+    public record TokenResponseDTO
+    {
+        public string Token { get; init; } = default!;
+        public DateTime ExpiresAt { get; init; }
+    }
 }
