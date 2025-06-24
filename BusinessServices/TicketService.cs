@@ -73,5 +73,11 @@ namespace Events_system.BusinessServices
             return await _repo.GetTicketByIdAsync(id)
                 ?? throw new KeyNotFoundException($"Ticket {id} not found.");
         }
+
+        public async Task<IEnumerable<TicketDTO>> GetByEventIdAsync(int eventId)
+        {
+            var tickets = await _repo.GetTicketsByEventIdAsync(eventId);
+            return _mapper.Map<IEnumerable<TicketDTO>>(tickets);
+        }
     }
 }

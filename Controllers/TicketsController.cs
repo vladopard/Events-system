@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +38,7 @@ namespace Events_system.Controllers
         }
 
         // POST: api/tickets
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<TicketDTO>> Create([FromBody] TicketCreateDTO dto)
         {
@@ -45,6 +47,7 @@ namespace Events_system.Controllers
         }
 
         // PUT: api/tickets/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] TicketUpdateDTO dto)
         {
@@ -53,6 +56,7 @@ namespace Events_system.Controllers
         }
 
         // PATCH: api/tickets/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> Patch(int id, [FromBody] JsonPatchDocument<TicketPatchDTO> patchDoc)
         {
@@ -75,11 +79,19 @@ namespace Events_system.Controllers
         }
 
         // DELETE: api/tickets/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("by-event/{eventId}")]
+        public async Task<ActionResult<IEnumerable<TicketDTO>>> GetByEventId(int eventId)
+        {
+            var result = await _service.GetByEventIdAsync(eventId);
+            return Ok(result);
         }
     }
 }

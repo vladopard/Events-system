@@ -29,18 +29,6 @@ namespace Events_system.BusinessServices
             return _mapper.Map<OrderDTO>(order);
         }
 
-        //public async Task<OrderDTO> CreateAsync(OrderCreateDTO dto)
-        //{
-        //    var order = _mapper.Map<Order>(dto);
-        //    await _repo.AddOrderAsync(order);
-
-        //    await _repo.SaveChangesAsync();
-
-        //    var newOrder = await _repo.GetOrderByIdAsync(order.Id);
-
-        //    return _mapper.Map<OrderDTO>(newOrder);
-        //}
-
         public async Task<OrderOrQueueResponseDTO> CreateeAsync(OrderRequestDTO dto)
         {
             var availableTickets = await _repo.GetTicketsByTicketTypeIdAsync(dto.TicketTypeId);
@@ -90,6 +78,12 @@ namespace Events_system.BusinessServices
                 IsQueued = false,
                 Order = _mapper.Map<OrderDTO>(createdOrder)
             };
+        }
+
+        public async Task<IEnumerable<OrderDTO>> GetByUserIdAsync(string userId)
+        {
+            var orders = await _repo.GetOrdersByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<OrderDTO>>(orders);
         }
 
         public async Task<OrderDTO> CreateAsync(OrderCreateDTO dto)

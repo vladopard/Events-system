@@ -71,12 +71,27 @@ namespace Events_system.Repositories
         public void UpdateTicket(Ticket ticket) => _context.Tickets.Update(ticket);
         public void DeleteTicket(Ticket ticket) => _context.Tickets.Remove(ticket);
 
+        public async Task<IEnumerable<Ticket>> GetTicketsByEventIdAsync(int eventId)
+        {
+            return await _context.Tickets
+                .Where(t => t.EventId == eventId)
+                .ToListAsync();
+        }
+
         // ORDERS
         public async Task<IEnumerable<Order>> GetAllOrdersAsync() =>
             await _context.Orders
                 .Include(o => o.Tickets)
                 .Include(o => o.User)
                 .ToListAsync();
+
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
+        {
+            return await _context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.Tickets)
+                .ToListAsync();
+        }
 
         public async Task<Order?> GetOrderByIdAsync(int id) =>
             await _context.Orders
@@ -100,6 +115,7 @@ namespace Events_system.Repositories
                 .Include(q => q.TicketType)
                 .Include(q => q.User)
                 .FirstOrDefaultAsync(q => q.Id == id);
+
 
         public async Task AddQueueAsync(Queue queue) => await _context.Queues.AddAsync(queue);
         public void UpdateQueue(Queue queue) => _context.Queues.Update(queue);

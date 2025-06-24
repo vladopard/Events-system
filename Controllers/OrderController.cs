@@ -35,6 +35,13 @@ namespace Events_system.Controllers
             return Ok(order);
         }
 
+        [HttpGet("by-user/{userId}")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetByUserId(string userId)
+        {
+            var result = await _service.GetByUserIdAsync(userId);
+            return Ok(result);
+        }
+
         [HttpPost("order-or-queue")]
         public async Task<ActionResult<OrderOrQueueResponseDTO>> 
             Createe([FromBody] OrderRequestDTO dto)
@@ -55,6 +62,7 @@ namespace Events_system.Controllers
             await _service.UpdateAsync(id, dto);
             return NoContent();
         }
+
 
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> Patch(int id, JsonPatchDocument<OrderPatchDTO> patchDoc)

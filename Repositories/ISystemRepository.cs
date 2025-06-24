@@ -23,12 +23,14 @@ namespace Events_system.Repositories
         Task<IEnumerable<TicketType>> GetAllTicketTypesAsync();
         Task<Event?> GetEventByIdAsync(int id);
         Task<Order?> GetOrderByIdAsync(int id);
+        Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId);
         Task<Queue?> GetQueueByIdAsync(int id);
         Task<Ticket?> GetTicketByIdAsync(int id);
         Task<TicketType?> GetTicketTypeByIdAsync(int id);
         Task<IEnumerable<Ticket>> GetTicketsByOrderIdAsync(int orderId);
         Task<IEnumerable<Ticket>> GetTicketsByTicketTypeIdAsync(int ticketTypeId);
         Task<IEnumerable<TicketType>> GetTicketTypesByEventIdAsync(int eventId);
+        Task<IEnumerable<Ticket>> GetTicketsByEventIdAsync(int eventId);
         Task<bool> SaveChangesAsync();
         void UpdateEvent(Event evt);
         void UpdateOrder(Order order);

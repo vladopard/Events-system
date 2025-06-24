@@ -6,7 +6,7 @@
 }
 
 body {
-  background-color: var(--bg-color);
+  background-color: var(--secondary-color);
   color: var(--text-color);
   font-family: 'Segoe UI', sans-serif;
 }
@@ -28,6 +28,22 @@ button {
   font-family: inherit;
   font-weight: 500;
   border-radius: 6px;
+}
+.card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+}
+.btn {
+  margin-top: auto;
+  box-shadow: 12px rgba(0, 0, 0, 0.08);
 }
 
 
