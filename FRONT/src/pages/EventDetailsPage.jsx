@@ -29,7 +29,7 @@ function EventDetailsPage() {
 
         try {
             const res = await api.post('/order/order-or-queue', {
-                userId: user.sub,
+                userId: user.userId,
                 ticketTypeId: ticketTypeId,
             })
 

@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import Navbar from './components/Navbar';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="admin/*" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   )

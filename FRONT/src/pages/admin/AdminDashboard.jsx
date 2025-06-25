@@ -1,24 +1,36 @@
-import { NavLink, Routes, Route, Navigate } from 'react-router-dom'
+import { useState } from 'react'
 import AddTicketPage from './AddTicketPage'
+import EditTicketsPage from './EditTicketsPage'
 
 function AdminDashboard() {
+  const [panel, setPanel] = useState('')   // '', 'add', 'edit'
+
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Admin panel</h2>
+      <h2 className="mb-4">Admin Dashboard</h2>
 
       <ul className="nav nav-tabs mb-4">
         <li className="nav-item">
-          <NavLink className="nav-link" to="add-ticket">
-            ➕ Dodaj kartu
-          </NavLink>
+          <button
+            className={`nav-link btn ${panel === 'add' ? 'active' : ''}`}
+            onClick={() => setPanel(panel === 'add' ? '' : 'add')}
+          >
+            {panel === 'add' ? '✔️ Gotovo sa izmenama' : '➕ Dodaj kartu'}
+          </button>
         </li>
-        {/* Dalje tabove (events, stats …) dodaćeš kasnije */}
+
+        <li className="nav-item">
+          <button
+            className={`nav-link btn ${panel === 'edit' ? 'active' : ''}`}
+            onClick={() => setPanel(panel === 'edit' ? '' : 'edit')}
+          >
+            🛠 Izmena karata
+          </button>
+        </li>
       </ul>
 
-      <Routes>
-        <Route path="add-ticket" element={<AddTicketPage />} />
-        <Route path="*" element={<Navigate to="add-ticket" replace />} />
-      </Routes>
+      {panel === 'add' && <AddTicketPage />}
+      {panel === 'edit' && <EditTicketsPage />}
     </div>
   )
 }
