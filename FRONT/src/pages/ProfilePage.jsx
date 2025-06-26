@@ -1,4 +1,3 @@
-// src/pages/ProfilePage.jsx
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -6,12 +5,10 @@ import { api } from '../services/api';
 function ProfilePage() {
   const { user } = useAuth();
 
-  /* --- state --- */
   const [orders, setOrders] = useState([]);
   const [queues, setQueues] = useState([]);
-  const [error,  setError]  = useState(null);
+  const [error, setError] = useState(null);
 
-  /* --- fetch --- */
   useEffect(() => {
     if (!user) return;
 
@@ -31,6 +28,21 @@ function ProfilePage() {
     load();
   }, [user?.userId]);
 
+  const statusText = s =>
+    s === 0 ? 'Čeka se' : s === 1 ? 'Rezervisano' : 'Završen';
+
+  const statusClass = s =>
+    s === 0 ? 'text-warning' : s === 1 ? 'text-info' : 'text-success';
+
+  const handleCancelQueue = async (queueId) => {
+    try {
+      await api.delete(`/queues/${queueId}`);
+      setQueues(prev => prev.filter(q => q.id !== queueId));
+    } catch {
+      alert('Greška pri otkazivanju čekanja.');
+    }
+  };
+
   if (!user) {
     return (
       <div className="container mt-4">
@@ -39,10 +51,6 @@ function ProfilePage() {
     );
   }
 
-  const statusText  = s => (s === 0 ? 'Čeka se' : s === 1 ? 'Rezervisano' : 'Završen');
-  const statusClass = s => (s === 0 ? 'text-warning' : s === 1 ? 'text-info' : 'text-success');
-
-  /* --- UI --- */
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Moj profil</h2>
@@ -97,7 +105,7 @@ function ProfilePage() {
           {queues.map(q => (
             <div key={q.id} className="col-md-6 col-lg-4 mb-3">
               <div className="card h-100">
-                <div className="card-body">
+                <div className="card-body d-flex flex-column">
                   <div className="d-flex justify-content-between">
                     <p className="mb-2"><strong>ID reda:</strong> {q.id}</p>
                     <span className={statusClass(q.status)}>{statusText(q.status)}</span>
@@ -106,6 +114,15 @@ function ProfilePage() {
                   <p className="mb-1"><strong>Event:</strong> {q.eventName}</p>
                   <p className="mb-1"><strong>Tip karte:</strong> {q.ticketTypeName}</p>
                   <p className="mb-0"><strong>Cena:</strong> {q.price.toLocaleString('sr-RS', { style: 'currency', currency: 'RSD' })}</p>
+
+                  {q.status === 0 && (
+                    <button
+                      className="btn btn-sm btn-outline-danger mt-3 align-self-start"
+                      onClick={() => handleCancelQueue(q.id)}
+                    >
+                      ❌ Otkaži čekanje
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
