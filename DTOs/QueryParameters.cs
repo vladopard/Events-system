@@ -11,7 +11,7 @@
             set => _pageSize = value > maxPageSize ? maxPageSize : value;
         }
         public string? SortBy { get; set; }
-        public string? SearchTerm { get; set; }
+        public string? Search { get; set; }
     }
 
     public class EventQueryParameters : QueryParameters { }

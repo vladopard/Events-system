@@ -28,7 +28,16 @@ namespace Events_system.Repositories
         {
             var query = _context.Events
                 .AsNoTracking()
+                .Include(e => e.TicketTypes)
                 .AsQueryable();               
+
+            if (!string.IsNullOrWhiteSpace(p.Search))
+        {
+            var term = p.Search.Trim().ToLower();
+            query = query.Where(e =>
+                EF.Functions.ILike(e.Name, $"%{term}%") ||
+                EF.Functions.ILike(e.Venue, $"%{term}%"));
+        }
 
             return await PagedList<Event>.CreateAsync(
                 query, p.PageNumber, p.PageSize);
