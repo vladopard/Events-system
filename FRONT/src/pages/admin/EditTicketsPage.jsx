@@ -68,56 +68,49 @@ export default function EditTicketsPage() {
     return (
         <>
             {/* FILTER-KARTICA */}
-            <div className="card p-4 shadow-sm mb-4" style={{ maxWidth: 1000 }}>
-                <h4 className="mb-3">Filtriraj karte</h4>
+            <div className="card p-4 shadow-sm mb-4" style={{ maxWidth: 500 }}>
+  <h5 className="mb-3">Filtriraj karte</h5>
 
-                <div className="row g-2 mb-3">
-                    {/* Događaj dropdown */}
-                    <div className="col-lg">
-                        <select
-                            className="form-select"
-                            value={eventId}
-                            onChange={(e) => {
-                                setEventId(e.target.value);
-                                setTicketTypeId('');
-                                setTickets([]);
-                            }}
-                        >
-                            <option value="">— Izaberi događaj —</option>
-                            {events.map((ev) => (
-                                <option key={ev.id} value={ev.id}>
-                                    {ev.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+  <div className="mb-3">
+    <label className="form-label">Događaj</label>
+    <select
+      className="form-select"
+      value={eventId}
+      onChange={(e) => {
+        setEventId(e.target.value);
+        setTicketTypeId('');
+        setTickets([]);
+      }}
+    >
+      <option value="">— Izaberi događaj —</option>
+      {events.map((ev) => (
+        <option key={ev.id} value={ev.id}>
+          {ev.name}
+        </option>
+      ))}
+    </select>
+  </div>
 
-                    {/* Tip karte dropdown */}
-                    <div className="col-md">
-                        <select
-                            className="form-select"
-                            value={ticketTypeId}
-                            onChange={(e) => setTicketTypeId(e.target.value)}
-                            disabled={!ticketTypes.length}
-                        >
-                            <option value="">— Izaberi tip karte —</option>
-                            {ticketTypes.map((tt) => (
-                                <option key={tt.id} value={tt.id}>
-                                    {tt.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+  <div className="mb-3">
+    <label className="form-label">Tip karte</label>
+    <select
+      className="form-select"
+      value={ticketTypeId}
+      onChange={(e) => setTicketTypeId(e.target.value)}
+      disabled={!ticketTypes.length}
+    >
+      <option value="">— Izaberi tip karte —</option>
+      {ticketTypes.map((tt) => (
+        <option key={tt.id} value={tt.id}>
+          {tt.name}
+        </option>
+      ))}
+    </select>
+  </div>
 
-                    {/* Prikaži dugme */}
-                    <div className="col-md-auto">
-                        <button className="btn btn-primary" onClick={loadTickets}>
-                            Prikaži
-                        </button>
-                    </div>
-                </div>
-
-                {msg && <div className="alert alert-info">{msg}</div>}
+  <button className="btn btn-primary w-100 mb-3" onClick={loadTickets}>
+    Prikaži
+  </button>
 
                 {tickets.length === 0 && !msg && (
                     <p className="text-muted">No tickets of this type exist.</p>

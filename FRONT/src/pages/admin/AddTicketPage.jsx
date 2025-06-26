@@ -12,7 +12,7 @@ function AddTicketPage() {
   /* učitaj sve događaje */
   useEffect(() => {
     api
-      .get('/events')
+      .get('/events', { params: { pageSize: 50 } })
       .then((res) => setEvents(res.data))
       .catch(() =>
         setMsg({ type: 'danger', text: 'Greška pri učitavanju događaja.' })

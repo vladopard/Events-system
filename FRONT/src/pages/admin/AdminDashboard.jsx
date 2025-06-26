@@ -1,38 +1,52 @@
+// src/pages/AdminDashboard.jsx
 import { useState } from 'react'
+import { BsPlus, BsWrench, BsTag } from 'react-icons/bs'
+
 import AddTicketPage from './AddTicketPage'
 import EditTicketsPage from './EditTicketsPage'
+import AddTicketTypePage from './AddTicketTypePage'
 
-function AdminDashboard() {
-  const [panel, setPanel] = useState('')   // '', 'add', 'edit'
+export default function AdminDashboard() {
+  // активни таб: addTicket | editTickets | addTicketType
+  const [tab, setTab] = useState('addTicket')
+
+  // унутрашња компонента за линкове
+  const NavLink = ({ id, icon: Icon, children }) => (
+    <button
+      onClick={() => setTab(id)}
+      className={`btn btn-link p-0 me-4 ${
+        tab === id ? 'fw-bold text-primary' : 'text-decoration-none'
+      }`}
+    >
+      <Icon className="me-1" />
+      {children}
+    </button>
+  )
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Admin Dashboard</h2>
+      <h1>Admin Dashboard</h1>
 
-      <ul className="nav nav-tabs mb-4">
-        <li className="nav-item">
-          <button
-            className={`nav-link btn ${panel === 'add' ? 'active' : ''}`}
-            onClick={() => setPanel(panel === 'add' ? '' : 'add')}
-          >
-            {panel === 'add' ? '✔️ Gotovo sa izmenama' : '➕ Dodaj kartu'}
-          </button>
-        </li>
+      {/* таб навигација */}
+      <div className="d-flex align-items-center mb-3">
+        <NavLink id="addTicket" icon={BsPlus}>
+          Dodaj kartu
+        </NavLink>
 
-        <li className="nav-item">
-          <button
-            className={`nav-link btn ${panel === 'edit' ? 'active' : ''}`}
-            onClick={() => setPanel(panel === 'edit' ? '' : 'edit')}
-          >
-            🛠 Izmena karata
-          </button>
-        </li>
-      </ul>
+        <NavLink id="editTickets" icon={BsWrench}>
+          Izmena karata
+        </NavLink>
 
-      {panel === 'add' && <AddTicketPage />}
-      {panel === 'edit' && <EditTicketsPage />}
+        <NavLink id="addTicketType" icon={BsTag}>
+          Dodaj tip karte
+        </NavLink>
+      </div>
+      <hr />
+
+      {/* садржај по табу */}
+      {tab === 'addTicket' && <AddTicketPage />}
+      {tab === 'editTickets' && <EditTicketsPage />}
+      {tab === 'addTicketType' && <AddTicketTypePage />}
     </div>
   )
 }
-
-export default AdminDashboard
