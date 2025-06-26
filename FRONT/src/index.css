@@ -7,7 +7,11 @@
 
 body {
   background-color: var(--secondary-color);
-  color: var(--text-color);
+  background: linear-gradient(135deg, #e8e8e8, #d6cbc1, #fefefe);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #2d2d2d;
   font-family: 'Segoe UI', sans-serif;
 }
 
