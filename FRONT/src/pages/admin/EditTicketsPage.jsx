@@ -16,7 +16,7 @@ export default function EditTicketsPage() {
     /* svi eventi */
     useEffect(() => {
         api
-            .get('/events')
+            .get('/events', { params: { pageSize: 50 }})
             .then((res) => setEvents(res.data))
             .catch(() => setMsg('Greška pri učitavanju događaja.'));
     }, []);

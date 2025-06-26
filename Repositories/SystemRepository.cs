@@ -138,6 +138,7 @@ namespace Events_system.Repositories
         public async Task<IEnumerable<Queue>> GetAllQueuesAsync() =>
             await _context.Queues
                 .Include(q => q.TicketType)
+                    .ThenInclude(tt => tt.Event)
                 .Include(q => q.User)
                 .ToListAsync();
 

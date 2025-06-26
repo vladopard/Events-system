@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { BsPlus, BsWrench, BsTag } from 'react-icons/bs'
 
+import QueueSidebar from './QueueSidebar'
 import AddTicketPage from './AddTicketPage'
 import EditTicketsPage from './EditTicketsPage'
 import AddTicketTypePage from './AddTicketTypePage'
@@ -24,7 +25,9 @@ export default function AdminDashboard() {
   )
 
   return (
-    <div className="container mt-4">
+  <div className="d-flex justify-content-between align-items-start">
+    {/* LEVA STRANA — sve kao ranije */}
+    <div className="container mt-4" style={{ maxWidth: '800px' }}>
       <h1>Admin Dashboard</h1>
 
       {/* таб навигација */}
@@ -32,11 +35,9 @@ export default function AdminDashboard() {
         <NavLink id="addTicket" icon={BsPlus}>
           Dodaj kartu
         </NavLink>
-
         <NavLink id="editTickets" icon={BsWrench}>
           Izmena karata
         </NavLink>
-
         <NavLink id="addTicketType" icon={BsTag}>
           Dodaj tip karte
         </NavLink>
@@ -48,5 +49,10 @@ export default function AdminDashboard() {
       {tab === 'editTickets' && <EditTicketsPage />}
       {tab === 'addTicketType' && <AddTicketTypePage />}
     </div>
-  )
+
+    {/* DESNA STRANA — QueueSidebar */}
+    <QueueSidebar />
+  </div>
+)
+
 }
