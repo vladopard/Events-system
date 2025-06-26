@@ -1,6 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Text.Json;
+using AutoMapper;
+using Events_system.BusinessServices;
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DTOs;
+using Events_system.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +23,28 @@ namespace Events_system.Controllers
             _mapper = mapper;
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<EventDTO>>> GetAll()
+        //{
+        //    var events = await _service.GetAllAsync();
+        //    return Ok(events);
+        //}
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventDTO>>> GetAll()
+        public async Task<ActionResult<PagedList<EventDTO>>> GetAll(
+            [FromQuery] EventQueryParameters p)
         {
-            var events = await _service.GetAllAsync();
-            return Ok(events);
+            var page = await _service.GetAllAsync(p);
+
+            var camel = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            Response.Headers.Append("X-Pagination",
+                JsonSerializer.Serialize(page.MetaData, camel));
+
+
+            return Ok(page);
         }
 
         [HttpGet("{id:int}")]

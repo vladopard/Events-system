@@ -1,20 +1,18 @@
-# ====== Build Stage ======
+# === build stage ======================================================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Копирамо само .csproj прво – ово се ретко мења, па ће се кеширати
-COPY *.csproj ./
-RUN dotnet restore
+# 1) kopiraj CSPROJ pa restore
+COPY ["Events system.csproj", "./"]
+RUN dotnet restore "./Events system.csproj"
 
-# Сада тек остатак пројекта – ако мењаш само .cs фајл, ово ће бити једини слој који се поново ради
-COPY . ./
-RUN dotnet build -c Release --no-restore   # додатно кеширање пре publish-а
-RUN dotnet publish -c Release -o /app/publish --no-restore
+# 2) kopiraj ostatak source-a
+COPY . .
+RUN dotnet publish "./Events system.csproj" -c Release -o /out
 
-# ====== Runtime Stage ======
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# === runtime stage ===================================================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ENV ASPNETCORE_URLS=http://+:80
 WORKDIR /app
-COPY --from=build /app/publish .
-
+COPY --from=build /out .
 ENTRYPOINT ["dotnet", "Events system.dll"]

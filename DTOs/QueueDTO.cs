@@ -22,6 +22,8 @@ namespace Events_system.DTOs
         public int Id { get; set; }
         public QueueStatus Status { get; set; }
         public string TicketTypeName { get; set; } = null!;
+        public decimal Price { get; set; }
+        public string EventName { get; set; } = null!;
     }
 
     public class QueuePatchDTO

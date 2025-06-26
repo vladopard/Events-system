@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Events_system.DbContexts;
+using Events_system.DTOs;
 using Events_system.Entities;
+using Events_system.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Events_system.Repositories
@@ -21,6 +23,16 @@ namespace Events_system.Repositories
                 .Include(e => e.Tickets)
                 .Include(e => e.TicketTypes)
                 .ToListAsync();
+
+        public async Task<PagedList<Event>> GetEventsPagedAsync(EventQueryParameters p)
+        {
+            var query = _context.Events
+                .AsNoTracking()
+                .AsQueryable();               
+
+            return await PagedList<Event>.CreateAsync(
+                query, p.PageNumber, p.PageSize);
+        }
 
         public async Task<IEnumerable<Queue>> GetWaitingAsync()
         {
@@ -74,7 +86,17 @@ namespace Events_system.Repositories
         public async Task<IEnumerable<Ticket>> GetTicketsByEventIdAsync(int eventId)
         {
             return await _context.Tickets
-                .Where(t => t.EventId == eventId)
+                    .Where(t => t.EventId == eventId)
+                    .Include(t => t.Event)
+                    .Include(t => t.TicketType)
+                    .ToListAsync();
+        }
+        public async Task<IEnumerable<Ticket>> GetTicketsByEventAndTypeAsync(int eventId, int ticketTypeId)
+        {
+            return await _context.Tickets
+                .Where(t => t.EventId == eventId && t.TicketTypeId == ticketTypeId)
+                .Include(t => t.TicketType)
+                .Include(t => t.Event)
                 .ToListAsync();
         }
 
@@ -85,13 +107,13 @@ namespace Events_system.Repositories
                 .Include(o => o.User)
                 .ToListAsync();
 
-        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
-        {
-            return await _context.Orders
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId) =>
+                await _context.Orders
                 .Where(o => o.UserId == userId)
-                .Include(o => o.Tickets)
+                .Include(o => o.Tickets).ThenInclude(t => t.Event)
+                .Include(o => o.Tickets).ThenInclude(t => t.TicketType)
                 .ToListAsync();
-        }
+
 
         public async Task<Order?> GetOrderByIdAsync(int id) =>
             await _context.Orders
@@ -115,6 +137,12 @@ namespace Events_system.Repositories
                 .Include(q => q.TicketType)
                 .Include(q => q.User)
                 .FirstOrDefaultAsync(q => q.Id == id);
+
+        public async Task<IEnumerable<Queue>> GetQueuesByUserIdAsync(string userId) =>
+            await _context.Queues
+                .Where(q => q.UserId == userId)
+                .Include(q => q.TicketType).ThenInclude(tt => tt.Event)
+                .ToListAsync();
 
 
         public async Task AddQueueAsync(Queue queue) => await _context.Queues.AddAsync(queue);

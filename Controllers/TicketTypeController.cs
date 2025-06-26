@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +45,7 @@ namespace Events_system.Controllers
         }
 
         // POST: api/tickettypes
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<TicketTypeDTO>> Create([FromBody] TicketTypeCreateDTO dto)
         {
@@ -52,6 +54,7 @@ namespace Events_system.Controllers
         }
 
         // PUT: api/tickettypes/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] TicketTypeUpdateDTO dto)
         {
@@ -60,6 +63,7 @@ namespace Events_system.Controllers
         }
 
         // PATCH: api/tickettypes/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> Patch(int id, [FromBody] JsonPatchDocument<TicketTypePatchDTO> patchDoc)
         {

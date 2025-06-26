@@ -79,5 +79,10 @@ namespace Events_system.BusinessServices
             var tickets = await _repo.GetTicketsByEventIdAsync(eventId);
             return _mapper.Map<IEnumerable<TicketDTO>>(tickets);
         }
+        public async Task<IEnumerable<TicketDTO>> GetByEventAndTypeAsync(int eventId, int ticketTypeId)
+        {
+            var tickets = await _repo.GetTicketsByEventAndTypeAsync(eventId, ticketTypeId);
+            return _mapper.Map<IEnumerable<TicketDTO>>(tickets);
+        }
     }
 }

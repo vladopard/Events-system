@@ -93,5 +93,12 @@ namespace Events_system.Controllers
             var result = await _service.GetByEventIdAsync(eventId);
             return Ok(result);
         }
+
+        [HttpGet("by-event-and-type")]
+        public async Task<ActionResult<IEnumerable<TicketDTO>>> GetByEventAndType([FromQuery] int eventId, [FromQuery] int ticketTypeId)
+        {
+            var result = await _service.GetByEventAndTypeAsync(eventId, ticketTypeId);
+            return Ok(result);
+        }
     }
 }

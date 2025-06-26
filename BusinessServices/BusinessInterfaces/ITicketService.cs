@@ -10,6 +10,7 @@ namespace Events_system.BusinessServices.BusinessInterfaces
         Task<bool> UpdateAsync(int id, TicketUpdateDTO dto);
         Task<bool> PatchAsync(int id, TicketPatchDTO dto);
         Task<IEnumerable<TicketDTO>> GetByEventIdAsync(int eventId);
+        Task<IEnumerable<TicketDTO>> GetByEventAndTypeAsync(int eventId, int ticketTypeId);
         Task<TicketDTO> GetByIdAsync(int id);
     }
 }

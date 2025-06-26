@@ -12,6 +12,8 @@
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<TicketDTO> Tickets { get; set; } = new();
+
     }
 
     public class OrderPatchDTO

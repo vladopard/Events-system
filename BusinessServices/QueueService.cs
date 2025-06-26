@@ -38,10 +38,10 @@ namespace Events_system.BusinessServices
 
         public async Task<IEnumerable<QueueDTO>> GetByUserIdAsync(string userId)
         {
-            var queues = await _repo.GetAllQueuesAsync();
-            var list = queues.Where(q => q.UserId == userId);
-            return _mapper.Map<IEnumerable<QueueDTO>>(list);
+            var queues = await _repo.GetQueuesByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<QueueDTO>>(queues);
         }
+
 
         public async Task NotifyAsync(int id)
         {

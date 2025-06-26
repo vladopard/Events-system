@@ -2,6 +2,7 @@
 using Events_system.BusinessServices.BusinessInterfaces;
 using Events_system.DTOs;
 using Events_system.Entities;
+using Events_system.Helpers;
 using Events_system.Repositories;
 
 namespace Events_system.BusinessServices
@@ -22,6 +23,21 @@ namespace Events_system.BusinessServices
         {
             var events = await _repo.GetAllEventsAsync();
             return _mapper.Map<IEnumerable<EventDTO>>(events);
+        }
+
+        public async Task<PagedList<EventDTO>> GetAllAsync(EventQueryParameters p)
+        {
+            // узми страну из репо-ја
+            var page = await _repo.GetEventsPagedAsync(p);
+
+            // мапирај само ставке, метаподаци остају исти
+            var dtoItems = _mapper.Map<List<EventDTO>>(page);
+
+            return new PagedList<EventDTO>(
+                dtoItems,
+                page.MetaData.TotalCount,
+                page.MetaData.CurrentPage,
+                page.MetaData.PageSize);
         }
 
         public async Task<EventDTO> GetByIdAsync(int id)

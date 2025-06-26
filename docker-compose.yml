@@ -1,6 +1,11 @@
 services:
   api:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: dotnet watch run --urls=http://0.0.0.0:80
+    volumes:
+      - ./api:/src
     container_name: event_api
     ports:
       - "5000:80"
@@ -10,6 +15,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+80
+      - Cors__Origins=http://localhost:5173
       - ConnectionStrings_DefaultConnection=Host=postgres;Port=5432;Database=eventsdb;Username=postgres;Password=password123
   postgres:
     image: postgres:15
