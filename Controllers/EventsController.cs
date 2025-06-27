@@ -7,6 +7,7 @@ using Events_system.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Events_system.Controllers
 {
@@ -16,11 +17,12 @@ namespace Events_system.Controllers
     {
         private readonly IEventService _service;
         private readonly IMapper _mapper;
-
-        public EventsController(IEventService service, IMapper mapper)
+        private readonly IDistributedCache _cache;
+        public EventsController(IEventService service, IMapper mapper, IDistributedCache cache)
         {
             _service = service;
             _mapper = mapper;
+            _cache = cache;
         }
 
         //[HttpGet]
@@ -30,22 +32,59 @@ namespace Events_system.Controllers
         //    return Ok(events);
         //}
         [HttpGet]
-        public async Task<ActionResult<PagedList<EventDTO>>> GetAll(
-            [FromQuery] EventQueryParameters p)
+        public async Task<ActionResult<IEnumerable<EventDTO>>> GetAll([FromQuery] EventQueryParameters p)
         {
-            var page = await _service.GetAllAsync(p);
-
-            var camel = new JsonSerializerOptions
+            var cacheKey = $"events_page_{p.PageNumber}_{p.PageSize}_{p.Search}";
+            var camelOpts = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
             };
 
+            // pokušaj iz keša
+            var cachedJson = await _cache.GetStringAsync(cacheKey);
+            if (cachedJson != null)
+            {
+                Console.WriteLine("➡️ Vraćam iz Redis keša");
+                var cachedPage = JsonSerializer
+                    .Deserialize<CachedPageDto<EventDTO>>(cachedJson, camelOpts)
+                    ?? throw new InvalidOperationException("Nešto nije u redu sa keširanim podacima");
+
+                Response.Headers.Append("X-Pagination",
+                    JsonSerializer.Serialize(cachedPage.MetaData, camelOpts));
+
+                // vraćamo samo listu
+                return Ok(cachedPage.Items);
+            }
+
+            // MISS
+            Response.Headers.Append("X-Cache", "MISS");
+
+            // povuci iz servisa
+            var result = await _service.GetAllAsync(p);
+
+            // upakuj u svoj DTO, obavezno ToList()
+            var toCache = new CachedPageDto<EventDTO>
+            {
+                Items = result.ToList(),
+                MetaData = result.MetaData
+            };
+
+            var cacheOpts = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            };
+            var jsonToCache = JsonSerializer.Serialize(toCache, camelOpts);
+            await _cache.SetStringAsync(cacheKey, jsonToCache, cacheOpts);
+
+            // header za paginaciju
             Response.Headers.Append("X-Pagination",
-                JsonSerializer.Serialize(page.MetaData, camel));
+                JsonSerializer.Serialize(result.MetaData, camelOpts));
 
-
-            return Ok(page);
+            // vraćamo listu, ne PagedList
+            return Ok(result.ToList());
         }
+
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<EventDTO>> GetById(int id)
