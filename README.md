@@ -23,3 +23,11 @@ FitSync is a workout and personal records tracker built with **ASP.NET Core 8**
 git clone https://github.com/<your‑username>/events-system.git
 cd events-system
 docker compose up --build
+
+### Configuration
+- Environment Variable	Purpose	Default
+- POSTGRES_USER	Database superuser	postgres
+- POSTGRES_PASSWORD	Database password	postgres
+- POSTGRES_DB	Database name	EventsDb
+- REDIS_HOST	Redis hostname (service name)	event_redis
+- API__ConnectionStrings__DefaultConnection	EF Core connection string	see docker-compose.yml
